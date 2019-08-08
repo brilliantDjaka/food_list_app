@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart' as spin;
 import 'package:flutter/material.dart';
 import './food_model.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +14,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    List content = [showFoodWidget('breakfast'), showFoodWidget('dessert')];
+    List content = [showFoodWidget('Dessert'), showFoodWidget('Seafood')];
     return Scaffold(
       appBar: AppBar(
         title: Text('Food Lisuto'),
@@ -24,9 +24,9 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-              title: Text('Breakfast'), icon: Icon(Icons.fastfood)),
+              title: Text('Dessert'), icon: Icon(Icons.fastfood)),
           BottomNavigationBarItem(
-              title: Text('Dessert'), icon: Icon(Icons.cake))
+              title: Text('Seafood'), icon: Icon(Icons.cake))
         ],
         currentIndex: bottomBarCurrent,
         onTap: (int selected) {
@@ -48,49 +48,43 @@ class _HomeState extends State<Home> {
                 children:
                     getFoodMenu(listFood: snapshot.data, context: context));
           } else {
-            return Card(
-              child: Text('Loading'),
-              borderOnForeground: true,
+            return Center(
+              child: spin.SpinKitWave(
+                 color: Colors.blueAccent,
+              ),
             );
           }
         });
   }
 
   Future<List> getFoodData({String category}) async {
-    List data = [];
-    int count = 1;
-    String getUrl({int p, String q}) {
-      return 'https://recipe-puppy.p.rapidapi.com/?p=$p&q=$q';
-    }
-
-    while (data.length < 20) {
-      var response = await http.get(getUrl(p: count, q: category), headers: {
+      var response = await http.get('https://www.themealdb.com/api/json/v1/1/filter.php?c=$category', headers: {
         'X-RapidAPI-Host': 'recipe-puppy.p.rapidapi.com',
         'X-RapidAPI-Key': '1e564e6c10msh7e12cb56442b016p1e7006jsna9fcf54df7ef'
       });
       Map tempData = await json.decode(response.body);
-      List tempListFood = tempData['results'];
-      tempListFood = tempListFood.where((e)=>(e['thumbnail'] != null && e['thumbnail'].toString().isNotEmpty)).toList();
-      data.addAll(tempListFood);
-      count++;
-    }
-    return data;
+      if(response.statusCode != 200){
+        return [];
+      }
+      List result = tempData['meals'].map((e)=>FoodModel(foodMap: e)).toList();
+    return result;
   }
 
   List<Widget> getFoodMenu({List listFood, BuildContext context}) {
     List data = listFood.map((e) {
+      FoodModel data = e;
       return Card(
         borderOnForeground: true,
         child: Center(
           child: ListTile(
             onTap: () {
               Navigator.pushNamed(context, '/detail',
-                  arguments: FoodModel(foodMap: e));
+                  arguments: e);
             },
             title: Hero(
-              child: (e['thumbnail'] != null && e['thumbnail'].toString().isNotEmpty)
+              child: (data.thumbnail != null && data.thumbnail.toString().isNotEmpty)
                   ? Image.network(
-                e['thumbnail'],
+                data.thumbnail,
                 fit: BoxFit.contain,
                 height: 90,
                 width: 90,
@@ -101,10 +95,10 @@ class _HomeState extends State<Home> {
                 height: 90,
                 width: 90,
               ),
-              tag: e['title'],
+              tag: data.id,
             ),
             subtitle: Text(
-              e['title'],
+              data.title,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14),
             ),

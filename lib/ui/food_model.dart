@@ -1,12 +1,15 @@
 class FoodModel {
+  String id;
   String title;
-  String href;
-  String ingredients;
   String thumbnail;
   FoodModel({Map foodMap}){
-    this.title = foodMap['title'];
-    this.href = foodMap['href'];
-    this.ingredients = foodMap['ingredients'];
-    this.thumbnail = foodMap['thumbnail'];
+    this.id = foodMap['idMeal'];
+    this.title = foodMap['strMeal'];
+    this.thumbnail = foodMap['strMealThumb'];
+  }
+  String getData(){
+    return'$title\n'
+        '$thumbnail\n'
+        '$id';
   }
 }
