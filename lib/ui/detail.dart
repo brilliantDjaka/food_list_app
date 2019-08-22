@@ -1,13 +1,16 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:food_list_by_brian/helper/query.dart';
 import './food_model.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart' as spin;
-import 'package:http/http.dart' as http;
+import '../helper/request.dart';
+import '../helper/command.dart';
+import 'package:toast/toast.dart';
+
 class Detail extends StatefulWidget {
   @override
   _DetailState createState() => _DetailState();
 }
+
 class _DetailState extends State<Detail> {
   @override
   Widget build(BuildContext context) {
@@ -43,33 +46,72 @@ class _DetailState extends State<Detail> {
                                 decoration: TextDecoration.underline,
                                 color: Colors.blue)),
                         onTap: () {
-                          _launchURL(snapshot.data['strYoutube']);
-                        })
+                          launchURL(snapshot.data['strYoutube']);
+                        }),
+                    FutureBuilder(
+                      future: checkData(data.id),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (snapshot.hasError) {
+                          print('error');
+                          return RaisedButton(
+                            color: Colors.white12,
+                            child: Text(
+                              'Error',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {},
+                          );
+                        }
+                        if (snapshot.hasData) {
+                          print(snapshot.data);
+                          if (snapshot.data == false) {
+                            return RaisedButton(
+                              color: Colors.blueAccent,
+                              child: Text(
+                                'Add To Favorite',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () {
+                                insertToFavorite(data);
+                                Toast.show('Added', context);
+                                Navigator.of(context).pop();
+                              },
+                            );
+                          } else {
+                            return RaisedButton(
+                              color: Colors.redAccent,
+                              child: Text(
+                                'Delete from Favorite',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () {
+                                deleteFromFavorite(data);
+                                Toast.show('Deleted', context);
+                                Navigator.of(context).pop();
+                              },
+                            );
+                          }
+                        } else {
+                          return RaisedButton(
+                            color: Colors.white12,
+                            child: Text(
+                              'Please Wait',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {},
+                          );
+                        }
+                      },
+                    )
                   ],
                 );
-              }
-              else {
-                return spin.SpinKitWave(
+              } else {
+                return spin.SpinKitFoldingCube(
                   color: Colors.blueAccent,
                 );
               }
             },
-          )
-      ),
+          )),
     );
-  }
-
-  _launchURL(url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-  Future<Map> getFood(id) async{
-    http.Response data = await http.get('https://www.themealdb.com/api/json/v1/1/lookup.php?i=$id');
-    Map result = json.decode(data.body);
-    result = result['meals'][0];
-    return result;
   }
 }
