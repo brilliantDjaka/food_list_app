@@ -3,7 +3,7 @@ import './ui/home.dart';
 import './ui/detail.dart';
 import './config.dart';
 
-void main() async {
+void main() {
   Config.appFlavor = Flavor.PRO;
   runApp(MaterialApp(
     title: 'Food Lisuto',
