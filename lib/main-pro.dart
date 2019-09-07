@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import './ui/home.dart';
 import './ui/detail.dart';
 import './config.dart';
-import 'package:http/http.dart' as http;
-void main() async{
-  Config.appFlavor = Flavor.DEV;
+
+void main() async {
+  Config.appFlavor = Flavor.PRO;
   runApp(MaterialApp(
     title: 'Food Lisuto',
     initialRoute: '/',
     routes: {
-      '/': (context) =>
-          Home(
+      '/': (context) => Home(
             appName: Config.appName,
           ),
-      '/detail':(context)=>Detail()
+      '/detail': (context) => Detail()
     },
   ));
 }

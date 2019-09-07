@@ -5,7 +5,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart' as spin;
 import '../helper/request.dart';
 import '../helper/command.dart';
 import 'package:toast/toast.dart';
-
+import '../config.dart';
+import 'package:http/http.dart' as http;
 class Detail extends StatefulWidget {
   @override
   _DetailState createState() => _DetailState();
@@ -14,21 +15,25 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   @override
   Widget build(BuildContext context) {
+    RequestHelper request = RequestHelper();
     final FoodModel data = ModalRoute
         .of(context)
         .settings
         .arguments;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Config.primaryColor,
         title: Text(data.title),
       ),
       body: Padding(
           padding: const EdgeInsets.all(10.0),
           child: FutureBuilder(
-            future: getFood(data.id),
+
+            future: request.getFood(data.id, http.Client()),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasData) {
                 return ListView(
+                  key: Key('detailList'),
                   children: <Widget>[
                     Center(
                       child: Hero(
@@ -52,7 +57,9 @@ class _DetailState extends State<Detail> {
                       future: checkData(data.id),
                       builder: (BuildContext context, AsyncSnapshot snapshot) {
                         if (snapshot.hasError) {
-                          print('error');
+                          if (Config.isDebug) {
+                            print('error');
+                          }
                           return RaisedButton(
                             color: Colors.white12,
                             child: Text(
@@ -63,10 +70,12 @@ class _DetailState extends State<Detail> {
                           );
                         }
                         if (snapshot.hasData) {
-                          print(snapshot.data);
+                          if (Config.isDebug) {
+                            print(snapshot.data);
+                          }
                           if (snapshot.data == false) {
                             return RaisedButton(
-                              color: Colors.blueAccent,
+                              color: Config.primaryColor,
                               child: Text(
                                 'Add To Favorite',
                                 style: TextStyle(color: Colors.white),
@@ -79,7 +88,7 @@ class _DetailState extends State<Detail> {
                             );
                           } else {
                             return RaisedButton(
-                              color: Colors.redAccent,
+                              color: Config.primaryColor,
                               child: Text(
                                 'Delete from Favorite',
                                 style: TextStyle(color: Colors.white),
@@ -107,7 +116,7 @@ class _DetailState extends State<Detail> {
                 );
               } else {
                 return spin.SpinKitFoldingCube(
-                  color: Colors.blueAccent,
+                  color: Config.primaryColor,
                 );
               }
             },

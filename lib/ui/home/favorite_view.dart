@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_list_by_brian/config.dart';
 import 'package:sqflite/sqflite.dart';
 import './main_view.dart';
 import 'package:path/path.dart';
@@ -18,13 +19,14 @@ class FavoriteView extends StatelessWidget {
                 child: ListTile(
                   title: Icon(
                     Icons.warning,
-                    color: Colors.blue,
+                    color: Config.secondaryColor,
                     size: 100,
                   ),
                   subtitle: Text(
                     'No Data',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 20, color: Colors.blue),
+                    style: TextStyle(
+                        fontSize: 20, color: Config.secondaryColor),
                   ),
                 ),
               );
@@ -36,7 +38,7 @@ class FavoriteView extends StatelessWidget {
           } else {
             return Center(
               child: spin.SpinKitFoldingCube(
-                color: Colors.blueAccent,
+                color: Config.secondaryColor,
               ),
             );
           }
@@ -49,10 +51,19 @@ class FavoriteView extends StatelessWidget {
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       // When creating the db, create the table
-      await db.execute('CREATE TABLE favorite (id TEXT PRIMARY KEY)');
+          await db.execute('CREATE TABLE favorite ('
+              'id TEXT PRIMARY KEY,'
+              'title TEXT,'
+              'thumbnail TEXT'
+              ')');
     });
+    if (Config.isDebug) {
+      print(await database.rawQuery('select * from favorite'));
+    }
     List list = await database.rawQuery('select * from favorite');
-    print(list);
+    if (Config.isDebug) {
+      print(list);
+    }
     if (list.length == 0) {
       return false;
     }

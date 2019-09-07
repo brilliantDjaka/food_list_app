@@ -22,7 +22,8 @@ insertToFavorite(FoodModel foodModel) async {
         'title TEXT,'
         'thumbnail TEXT'
         ')');
-  });
+      },
+  );
   await database.insert('favorite', foodModel.toMap());
 }
 
